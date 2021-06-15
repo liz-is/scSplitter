@@ -62,6 +62,8 @@ def main():
                         help='compressed output; default = True (use ''False'' to keep results as uncompressed fastq')
     parser.add_argument('--sam', type=af.str2bool, nargs='?', const=True, default=False,
                         help=f"(debugging) keep SAM: if set to ""True"", keeps SAM files from alignment for checking; default: False")
+    parser.add_argument('--threads', '-t', type=int, default=4,
+                        help='number of paralell processes to use for alignment with STAR; default: 4')
     args = parser.parse_args()
     #transfer inputs to variables
     nameFile = args.f
@@ -86,6 +88,7 @@ def main():
     keepSAM = args.sam
     maxPairCutoff = args.po
     qcMode = args.qc
+    threads = args.threads
     if qcMode == 'strict':
         isStrict = True
     else:
@@ -181,7 +184,7 @@ def main():
         if p != 'y' and p != 'Y':
             sys.exit(0)            
     #calculate chunk size based on system resources
-    nprocess = os.cpu_count()
+    nprocess = threads
     availMem = psutil.virtual_memory()[1] / 1073741824
     '''
     #unused (7/26/19): STAR uses so much memory that memory use is independent of chunk size
